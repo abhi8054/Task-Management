@@ -17,7 +17,8 @@ interface State {
 
 // ── Actions ──────────────────────────────────────────────────────────────────
 type Action =
-  | { type: 'ADD_TASK'; payload: TaskFormData }
+  | { type: 'LOAD_TASKS'; payload: Task[] }
+  | { type: 'ADD_TASK'; payload: Task }
   | { type: 'UPDATE_TASK'; payload: Task }
   | { type: 'DELETE_TASK'; payload: string }
   | { type: 'MOVE_TASK'; payload: { id: string; status: Status } }
@@ -27,24 +28,17 @@ const defaultFilters: Filters = { priority: 'all', status: 'all', search: '' };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'ADD_TASK': {
-      const now = new Date().toISOString();
-      const task: Task = {
-        ...action.payload,
-        id: generateId(),
-        createdAt: now,
-        updatedAt: now,
-      };
-      return { ...state, tasks: [task, ...state.tasks] };
-    }
+    case 'LOAD_TASKS':
+      return { ...state, tasks: action.payload };
+
+    case 'ADD_TASK':
+      return { ...state, tasks: [action.payload, ...state.tasks] };
 
     case 'UPDATE_TASK':
       return {
         ...state,
         tasks: state.tasks.map((t) =>
-          t.id === action.payload.id
-            ? { ...action.payload, updatedAt: new Date().toISOString() }
-            : t
+          t.id === action.payload.id ? action.payload : t
         ),
       };
 
@@ -69,8 +63,45 @@ function reducer(state: State, action: Action): State {
   }
 }
 
+// ── API helpers ──────────────────────────────────────────────────────────────
+const API = '/api/tasks';
+
+async function apiPost(task: Task): Promise<void> {
+  await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(task) });
+}
+async function apiPut(task: Task): Promise<void> {
+  await fetch(`${API}/${task.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(task) });
+}
+async function apiPatch(id: string, patch: Partial<Task>): Promise<void> {
+  await fetch(`${API}/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(patch) });
+}
+async function apiDelete(id: string): Promise<void> {
+  await fetch(`${API}/${id}`, { method: 'DELETE' });
+}
+
+// ── localStorage cache ───────────────────────────────────────────────────────
+const STORAGE_KEY = 'task-dashboard-v1';
+
+function readStorage(): Task[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : SAMPLE_TASKS;
+  } catch {
+    return SAMPLE_TASKS;
+  }
+}
+
+function writeStorage(tasks: Task[]) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); } catch { /* quota */ }
+}
+
+function initState(): State {
+  return { tasks: readStorage(), filters: defaultFilters };
+}
+
 // ── Context ──────────────────────────────────────────────────────────────────
 interface TaskContextValue {
+  loading: boolean;
   tasks: Task[];
   filters: Filters;
   filteredTasks: Task[];
@@ -86,27 +117,62 @@ interface TaskContextValue {
 
 const TaskContext = createContext<TaskContextValue | null>(null);
 
-const STORAGE_KEY = 'task-dashboard-v1';
-
-function initState(): State {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    return { tasks: raw ? JSON.parse(raw) : SAMPLE_TASKS, filters: defaultFilters };
-  } catch {
-    return { tasks: SAMPLE_TASKS, filters: defaultFilters };
-  }
-}
-
 export function TaskProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, undefined, initState);
+  const [loading, setLoading] = React.useState(true);
 
-  // Persist tasks whenever they change
+  // Hydrate from API on mount; localStorage already loaded as initial state
   useEffect(() => {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state.tasks));
-    } catch { /* quota */ }
+    const controller = new AbortController();
+
+    fetch('/api/tasks', { signal: controller.signal })
+      .then((r) => r.json())
+      .then((tasks: Task[]) => {
+        dispatch({ type: 'LOAD_TASKS', payload: tasks });
+        writeStorage(tasks);
+      })
+      .catch((err) => {
+        if (err.name === 'AbortError') return; // StrictMode double-mount — ignore
+      })
+      .finally(() => setLoading(false));
+
+    return () => controller.abort();
+  }, []);
+
+  // Keep localStorage in sync whenever tasks change
+  useEffect(() => {
+    writeStorage(state.tasks);
   }, [state.tasks]);
 
+  // ── Mutations (optimistic + API sync) ──────────────────────────────────────
+  const addTask = useCallback((data: TaskFormData) => {
+    const now = new Date().toISOString();
+    const task: Task = { ...data, id: generateId(), createdAt: now, updatedAt: now };
+    dispatch({ type: 'ADD_TASK', payload: task });
+    apiPost(task).catch(console.error);
+  }, []);
+
+  const updateTask = useCallback((task: Task) => {
+    const updated = { ...task, updatedAt: new Date().toISOString() };
+    dispatch({ type: 'UPDATE_TASK', payload: updated });
+    apiPut(updated).catch(console.error);
+  }, []);
+
+  const deleteTask = useCallback((id: string) => {
+    dispatch({ type: 'DELETE_TASK', payload: id });
+    apiDelete(id).catch(console.error);
+  }, []);
+
+  const moveTask = useCallback((id: string, status: Status) => {
+    const updatedAt = new Date().toISOString();
+    dispatch({ type: 'MOVE_TASK', payload: { id, status } });
+    apiPatch(id, { status, updatedAt }).catch(console.error);
+  }, []);
+
+  const setFilter    = useCallback((f: Partial<Filters>) => dispatch({ type: 'SET_FILTER', payload: f }), []);
+  const clearFilters = useCallback(() => dispatch({ type: 'SET_FILTER', payload: defaultFilters }), []);
+
+  // ── Derived state ──────────────────────────────────────────────────────────
   const filteredTasks = useMemo(
     () => applyFilters(state.tasks, state.filters),
     [state.tasks, state.filters]
@@ -134,16 +200,9 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     };
   }, [state.tasks]);
 
-  const addTask    = useCallback((data: TaskFormData) => dispatch({ type: 'ADD_TASK',    payload: data }), []);
-  const updateTask = useCallback((task: Task)         => dispatch({ type: 'UPDATE_TASK', payload: task }), []);
-  const deleteTask = useCallback((id: string)         => dispatch({ type: 'DELETE_TASK', payload: id }),   []);
-  const moveTask   = useCallback((id: string, status: Status) => dispatch({ type: 'MOVE_TASK', payload: { id, status } }), []);
-  const setFilter  = useCallback((f: Partial<Filters>) => dispatch({ type: 'SET_FILTER', payload: f }), []);
-  const clearFilters = useCallback(() => dispatch({ type: 'SET_FILTER', payload: defaultFilters }), []);
-
   const value = useMemo<TaskContextValue>(
-    () => ({ tasks: state.tasks, filters: state.filters, filteredTasks, tasksByStatus, stats, addTask, updateTask, deleteTask, moveTask, setFilter, clearFilters }),
-    [state.tasks, state.filters, filteredTasks, tasksByStatus, stats, addTask, updateTask, deleteTask, moveTask, setFilter, clearFilters]
+    () => ({ loading, tasks: state.tasks, filters: state.filters, filteredTasks, tasksByStatus, stats, addTask, updateTask, deleteTask, moveTask, setFilter, clearFilters }),
+    [loading, state.tasks, state.filters, filteredTasks, tasksByStatus, stats, addTask, updateTask, deleteTask, moveTask, setFilter, clearFilters]
   );
 
   return <TaskContext.Provider value={value}>{children}</TaskContext.Provider>;

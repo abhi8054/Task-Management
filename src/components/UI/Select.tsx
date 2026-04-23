@@ -26,6 +26,7 @@ export const Select = memo(({ value, onChange, options, className = '', error }:
   const [pos, setPos] = useState<PopupPos | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
 
   const selected = options.find((o) => o.value === value);
 
@@ -45,7 +46,7 @@ export const Select = memo(({ value, onChange, options, className = '', error }:
     const close = (e: MouseEvent) => {
       const target = e.target as Node;
       if (wrapperRef.current?.contains(target)) return;
-      // also allow clicks inside the portal popup — handled by portal's own buttons
+      if (popupRef.current?.contains(target)) return;
       setOpen(false);
     };
     const closeKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
@@ -92,6 +93,7 @@ export const Select = memo(({ value, onChange, options, className = '', error }:
 
       {open && pos && createPortal(
         <div
+          ref={popupRef}
           style={{ position: 'fixed', top: pos.top, left: pos.left, minWidth: pos.width, zIndex: 9999 }}
           className="bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden animate-scale-in"
         >

@@ -40,6 +40,7 @@ export const DatePicker = memo(({ value, onChange, className = '', error }: Date
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<PopupPos | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
   const today = new Date();
 
   const selected = parseLocal(value);
@@ -71,7 +72,9 @@ export const DatePicker = memo(({ value, onChange, className = '', error }: Date
   useEffect(() => {
     if (!open) return;
     const handleOutside = (e: MouseEvent) => {
-      if (triggerRef.current?.contains(e.target as Node)) return;
+      const target = e.target as Node;
+      if (triggerRef.current?.contains(target)) return;
+      if (popupRef.current?.contains(target)) return;
       setOpen(false);
     };
     const handleEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
@@ -157,9 +160,9 @@ export const DatePicker = memo(({ value, onChange, className = '', error }: Date
 
       {open && pos && createPortal(
         <div
+          ref={popupRef}
           style={{ position: 'fixed', top: pos.top, left: pos.left, width: 288, zIndex: 9999 }}
           className="bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden animate-scale-in"
-          onMouseDown={(e) => e.preventDefault()}
         >
           {/* Month / year nav */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">

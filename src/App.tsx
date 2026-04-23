@@ -20,7 +20,7 @@ function AppContent() {
   }, [addTask]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ background: 'radial-gradient(ellipse 80% 60% at 50% -10%, rgba(109,40,217,0.18) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 90% 80%, rgba(99,102,241,0.1) 0%, transparent 50%), #080c18' }}>
       <Header onNewTask={openNewTask} />
       <FilterBar />
 

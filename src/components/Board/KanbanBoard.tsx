@@ -11,16 +11,19 @@ import {
 import type { DragEndEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import type { Task, Status, TaskFormData } from '../../types/task';
-import { COLUMN_ORDER } from '../../utils/helpers';
+import { COLUMN_ORDER, STATUS_STYLES } from '../../utils/helpers';
 import { useTaskContext } from '../../context/TaskContext';
 import KanbanColumn from './KanbanColumn';
 import TaskCard from './TaskCard';
+import SkeletonCard from './SkeletonCard';
 import { TaskModal } from '../TaskModal/TaskModal';
 
 const STATUSES = new Set<string>(COLUMN_ORDER);
 
+const SKELETON_COUNTS: Record<Status, number> = { 'todo': 3, 'in-progress': 2, 'done': 2 };
+
 export default function KanbanBoard() {
-  const { tasksByStatus, addTask, updateTask, deleteTask, moveTask } = useTaskContext();
+  const { loading, tasksByStatus, addTask, updateTask, deleteTask, moveTask } = useTaskContext();
 
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [newTaskStatus, setNewTaskStatus] = useState<Status>('todo');
@@ -118,6 +121,32 @@ export default function KanbanBoard() {
   const confirmDelete = useCallback(() => {
     if (deleteConfirm) { deleteTask(deleteConfirm); setDeleteConfirm(null); }
   }, [deleteConfirm, deleteTask]);
+
+  if (loading) {
+    return (
+      <div className="flex gap-4 p-4 sm:p-6 overflow-x-auto flex-1 items-start">
+        {COLUMN_ORDER.map((status) => {
+          const cfg = STATUS_STYLES[status];
+          return (
+            <div key={status} className="flex flex-col flex-1 min-w-[280px] max-w-sm sm:max-w-none">
+              <div className={`flex items-center justify-between px-4 py-3 rounded-t-2xl bg-gradient-to-r ${cfg.column} shadow-sm`}>
+                <div className="flex items-center gap-2.5">
+                  <div className="skeleton h-3.5 w-20 rounded-full opacity-40" />
+                  <div className="skeleton h-5 w-6 rounded-full opacity-30" />
+                </div>
+                <div className="skeleton size-7 rounded-lg opacity-30" />
+              </div>
+              <div className="flex-1 flex flex-col gap-3 p-3 rounded-b-2xl bg-slate-100/70">
+                {Array.from({ length: SKELETON_COUNTS[status] }).map((_, i) => (
+                  <SkeletonCard key={i} />
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
     <>

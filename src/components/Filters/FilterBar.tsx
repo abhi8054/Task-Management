@@ -4,6 +4,7 @@ import { useTaskContext } from '../../context/TaskContext';
 import { useDebounce } from '../../hooks/useDebounce';
 import type { Priority, Status } from '../../types/task';
 import { Button } from '../UI/Button';
+import { Select } from '../UI/Select';
 
 const PRIORITIES = [
   { value: 'all',    label: 'All Priorities' },
@@ -32,14 +33,6 @@ const FilterBar = memo(() => {
   const handleSearch = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchInput(e.target.value);
   }, []);
-
-  const handlePriority = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFilter({ priority: e.target.value as Priority | 'all' });
-  }, [setFilter]);
-
-  const handleStatus = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFilter({ status: e.target.value as Status | 'all' });
-  }, [setFilter]);
 
   const handleClear = useCallback(() => {
     setSearchInput('');
@@ -78,25 +71,19 @@ const FilterBar = memo(() => {
           <div className="flex items-center gap-2 shrink-0 flex-wrap">
             <SlidersHorizontal size={15} className="text-slate-400 shrink-0" />
 
-            <select
+            <Select
               value={filters.priority}
-              onChange={handlePriority}
-              className="text-sm bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-400 cursor-pointer text-slate-600"
-            >
-              {PRIORITIES.map((p) => (
-                <option key={p.value} value={p.value}>{p.label}</option>
-              ))}
-            </select>
+              onChange={(v) => setFilter({ priority: v as Priority | 'all' })}
+              options={PRIORITIES}
+              className="w-36"
+            />
 
-            <select
+            <Select
               value={filters.status}
-              onChange={handleStatus}
-              className="text-sm bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-400 cursor-pointer text-slate-600"
-            >
-              {STATUSES.map((s) => (
-                <option key={s.value} value={s.value}>{s.label}</option>
-              ))}
-            </select>
+              onChange={(v) => setFilter({ status: v as Status | 'all' })}
+              options={STATUSES}
+              className="w-36"
+            />
 
             {isFiltered && (
               <Button variant="ghost" size="sm" onClick={handleClear} className="text-red-500 hover:bg-red-50 hover:text-red-600">

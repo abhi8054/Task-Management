@@ -2,6 +2,8 @@ import React, { useEffect, useReducer, useCallback } from 'react';
 import type { Task, TaskFormData, Priority, Status } from '../../types/task';
 import { Modal } from '../UI/Modal';
 import { Button } from '../UI/Button';
+import { Select } from '../UI/Select';
+import { DatePicker } from '../UI/DatePicker';
 
 interface Props {
   open: boolean;
@@ -98,36 +100,34 @@ export function TaskModal({ open, task, defaultStatus = 'todo', onClose, onSave 
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {field('Priority', true,
-            <select
+            <Select
               value={form.priority}
-              onChange={(e) => patchForm({ priority: e.target.value as Priority })}
-              className={inputCls()}
-            >
-              <option value="low">🟢 Low</option>
-              <option value="medium">🟡 Medium</option>
-              <option value="high">🔴 High</option>
-            </select>
+              onChange={(v) => patchForm({ priority: v as Priority })}
+              options={[
+                { value: 'low',    label: '🟢 Low' },
+                { value: 'medium', label: '🟡 Medium' },
+                { value: 'high',   label: '🔴 High' },
+              ]}
+            />
           )}
 
           {field('Status', true,
-            <select
+            <Select
               value={form.status}
-              onChange={(e) => patchForm({ status: e.target.value as Status })}
-              className={inputCls()}
-            >
-              <option value="todo">Todo</option>
-              <option value="in-progress">In Progress</option>
-              <option value="done">Done</option>
-            </select>
+              onChange={(v) => patchForm({ status: v as Status })}
+              options={[
+                { value: 'todo',        label: 'Todo' },
+                { value: 'in-progress', label: 'In Progress' },
+                { value: 'done',        label: 'Done' },
+              ]}
+            />
           )}
         </div>
 
         {field('Due Date', false,
-          <input
-            type="date"
+          <DatePicker
             value={form.dueDate}
-            onChange={(e) => patchForm({ dueDate: e.target.value })}
-            className={inputCls()}
+            onChange={(v) => patchForm({ dueDate: v })}
           />
         )}
 

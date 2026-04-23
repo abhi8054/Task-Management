@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { Calendar, ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 interface DatePickerProps {
-  value: string; // YYYY-MM-DD or ''
+  value: string;
   onChange: (value: string) => void;
   className?: string;
   error?: boolean;
@@ -31,22 +31,19 @@ function formatDisplay(value: string): string {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-interface PopupPos {
-  top: number;
-  left: number;
-}
+interface PopupPos { top: number; left: number; }
 
 export const DatePicker = memo(({ value, onChange, className = '', error }: DatePickerProps) => {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<PopupPos | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const popupRef = useRef<HTMLDivElement>(null);
+  const popupRef   = useRef<HTMLDivElement>(null);
   const today = new Date();
 
   const selected = parseLocal(value);
   const [view, setView] = useState({
     month: selected ? selected.getMonth() : today.getMonth(),
-    year: selected ? selected.getFullYear() : today.getFullYear(),
+    year:  selected ? selected.getFullYear() : today.getFullYear(),
   });
 
   useEffect(() => {
@@ -56,11 +53,10 @@ export const DatePicker = memo(({ value, onChange, className = '', error }: Date
   const computePos = useCallback(() => {
     if (!triggerRef.current) return;
     const r = triggerRef.current.getBoundingClientRect();
-    // Show above if not enough space below (popup ~320px tall)
     const spaceBelow = window.innerHeight - r.bottom;
     setPos(spaceBelow >= 320
       ? { top: r.bottom + 4, left: r.left }
-      : { top: r.top - 324, left: r.left }
+      : { top: r.top - 324,  left: r.left }
     );
   }, []);
 
@@ -72,9 +68,9 @@ export const DatePicker = memo(({ value, onChange, className = '', error }: Date
   useEffect(() => {
     if (!open) return;
     const handleOutside = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (triggerRef.current?.contains(target)) return;
-      if (popupRef.current?.contains(target)) return;
+      const t = e.target as Node;
+      if (triggerRef.current?.contains(t)) return;
+      if (popupRef.current?.contains(t)) return;
       setOpen(false);
     };
     const handleEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
@@ -92,12 +88,9 @@ export const DatePicker = memo(({ value, onChange, className = '', error }: Date
   }, [open]);
 
   const prevMonth = useCallback(() =>
-    setView(v => v.month === 0 ? { month: 11, year: v.year - 1 } : { month: v.month - 1, year: v.year }),
-  []);
-
+    setView(v => v.month === 0 ? { month: 11, year: v.year - 1 } : { month: v.month - 1, year: v.year }), []);
   const nextMonth = useCallback(() =>
-    setView(v => v.month === 11 ? { month: 0, year: v.year + 1 } : { month: v.month + 1, year: v.year }),
-  []);
+    setView(v => v.month === 11 ? { month: 0, year: v.year + 1 } : { month: v.month + 1, year: v.year }), []);
 
   const selectDay = useCallback((day: number) => {
     onChange(toISO(view.year, view.month, day));
@@ -114,7 +107,6 @@ export const DatePicker = memo(({ value, onChange, className = '', error }: Date
     onChange('');
   }, [onChange]);
 
-  // Build calendar grid
   const firstDow = new Date(view.year, view.month, 1).getDay();
   const daysInMonth = new Date(view.year, view.month + 1, 0).getDate();
   const cells: (number | null)[] = [
@@ -124,22 +116,16 @@ export const DatePicker = memo(({ value, onChange, className = '', error }: Date
   while (cells.length % 7 !== 0) cells.push(null);
 
   const isSelected = (day: number) =>
-    !!selected &&
-    day === selected.getDate() &&
-    view.month === selected.getMonth() &&
-    view.year === selected.getFullYear();
-
+    !!selected && day === selected.getDate() && view.month === selected.getMonth() && view.year === selected.getFullYear();
   const isToday = (day: number) =>
-    day === today.getDate() &&
-    view.month === today.getMonth() &&
-    view.year === today.getFullYear();
+    day === today.getDate() && view.month === today.getMonth() && view.year === today.getFullYear();
 
   const borderCls = error
-    ? 'border-red-400 focus:ring-red-300/40'
-    : 'border-slate-200 focus:ring-indigo-500/40 focus:border-indigo-400';
+    ? 'border-rose-500/40 focus:ring-rose-500/20'
+    : 'border-white/10 focus:ring-violet-500/30 focus:border-violet-500/40';
 
   const openCls = open
-    ? `ring-2 bg-white ${error ? 'ring-red-300/40' : 'ring-indigo-500/40 border-indigo-400'}`
+    ? `ring-2 ${error ? 'ring-rose-500/20 border-rose-500/40' : 'ring-violet-500/30 border-violet-500/40'}`
     : '';
 
   return (
@@ -148,51 +134,43 @@ export const DatePicker = memo(({ value, onChange, className = '', error }: Date
         ref={triggerRef}
         type="button"
         onClick={handleToggle}
-        className={`w-full flex items-center gap-2 px-3 py-2 text-sm bg-slate-50 border rounded-xl transition-all cursor-pointer focus:outline-none focus:ring-2 focus:bg-white ${borderCls} ${openCls} ${value ? 'text-slate-700' : 'text-slate-400'}`}
+        className={`w-full flex items-center gap-2 px-3 py-2 text-sm bg-white/5 border rounded-xl transition-all cursor-pointer focus:outline-none focus:ring-2 ${borderCls} ${openCls} ${value ? 'text-slate-200' : 'text-slate-500'}`}
       >
-        <Calendar size={14} className="shrink-0 text-slate-400" />
+        <Calendar size={14} className="shrink-0 text-slate-500" />
         <span className="flex-1 text-left">{value ? formatDisplay(value) : 'Pick a date'}</span>
         {value
-          ? <X size={13} className="shrink-0 text-slate-400 hover:text-red-400 transition-colors" onClick={clearDate} />
-          : <ChevronDown size={14} className={`shrink-0 text-slate-400 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
+          ? <X size={13} className="shrink-0 text-slate-500 hover:text-rose-400 transition-colors" onClick={clearDate} />
+          : <ChevronDown size={13} className={`shrink-0 text-slate-500 transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
         }
       </button>
 
       {open && pos && createPortal(
         <div
           ref={popupRef}
-          style={{ position: 'fixed', top: pos.top, left: pos.left, width: 288, zIndex: 9999 }}
-          className="bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden animate-scale-in"
+          style={{ position: 'fixed', top: pos.top, left: pos.left, width: 280, zIndex: 9999, background: 'rgba(10,13,30,0.98)', backdropFilter: 'blur(20px)' }}
+          className="border border-white/10 rounded-2xl shadow-2xl shadow-black/60 overflow-hidden animate-scale-in"
         >
-          {/* Month / year nav */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-            <button
-              type="button"
-              onClick={prevMonth}
-              className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors"
-            >
-              <ChevronLeft size={15} />
+          {/* Month nav */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.08]">
+            <button type="button" onClick={prevMonth} className="p-1.5 rounded-lg text-slate-500 hover:bg-white/10 hover:text-slate-200 transition-colors">
+              <ChevronLeft size={14} />
             </button>
-            <span className="text-sm font-semibold text-slate-700 select-none">
+            <span className="text-sm font-semibold text-slate-200 select-none">
               {MONTHS[view.month]} {view.year}
             </span>
-            <button
-              type="button"
-              onClick={nextMonth}
-              className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors"
-            >
-              <ChevronRight size={15} />
+            <button type="button" onClick={nextMonth} className="p-1.5 rounded-lg text-slate-500 hover:bg-white/10 hover:text-slate-200 transition-colors">
+              <ChevronRight size={14} />
             </button>
           </div>
 
-          {/* Day-of-week headers */}
+          {/* Day headers */}
           <div className="grid grid-cols-7 px-3 pt-3 pb-1">
             {DAY_HEADERS.map(d => (
-              <div key={d} className="text-center text-xs font-medium text-slate-400">{d}</div>
+              <div key={d} className="text-center text-xs font-medium text-slate-600">{d}</div>
             ))}
           </div>
 
-          {/* Day grid */}
+          {/* Days */}
           <div className="grid grid-cols-7 px-3 pb-3 gap-y-0.5">
             {cells.map((day, i) => {
               if (!day) return <div key={i} />;
@@ -205,10 +183,10 @@ export const DatePicker = memo(({ value, onChange, className = '', error }: Date
                   onClick={() => selectDay(day)}
                   className={`h-8 w-8 mx-auto flex items-center justify-center text-sm rounded-full transition-colors
                     ${sel
-                      ? 'bg-indigo-600 text-white font-semibold shadow-sm'
+                      ? 'bg-violet-600 text-white font-semibold shadow-sm shadow-violet-500/40'
                       : tod
-                        ? 'border border-indigo-400 text-indigo-600 font-medium hover:bg-indigo-50'
-                        : 'text-slate-700 hover:bg-indigo-50 hover:text-indigo-700'
+                        ? 'border border-violet-500/40 text-violet-400 hover:bg-violet-500/10'
+                        : 'text-slate-400 hover:bg-white/10 hover:text-slate-100'
                     }`}
                 >
                   {day}
@@ -218,20 +196,12 @@ export const DatePicker = memo(({ value, onChange, className = '', error }: Date
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-2.5 border-t border-slate-100 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={selectToday}
-              className="text-xs font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
-            >
+          <div className="px-4 py-2.5 border-t border-white/[0.08] flex items-center justify-between">
+            <button type="button" onClick={selectToday} className="text-xs font-medium text-violet-400 hover:text-violet-300 transition-colors">
               Today
             </button>
             {value && (
-              <button
-                type="button"
-                onClick={() => clearDate()}
-                className="text-xs text-slate-400 hover:text-red-500 transition-colors"
-              >
+              <button type="button" onClick={() => clearDate()} className="text-xs text-slate-600 hover:text-rose-400 transition-colors">
                 Clear
               </button>
             )}

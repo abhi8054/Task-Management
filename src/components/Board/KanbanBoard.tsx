@@ -136,7 +136,7 @@ export default function KanbanBoard() {
                 </div>
                 <div className="skeleton size-7 rounded-lg opacity-30" />
               </div>
-              <div className="flex-1 flex flex-col gap-3 p-3 rounded-b-2xl bg-slate-100/70">
+              <div className="flex-1 flex flex-col gap-3 p-3 rounded-b-2xl bg-white/[0.03] border border-t-0 border-white/[0.06]">
                 {Array.from({ length: SKELETON_COUNTS[status] }).map((_, i) => (
                   <SkeletonCard key={i} />
                 ))}
@@ -195,14 +195,14 @@ export default function KanbanBoard() {
       {deleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ animation: 'fade-in 0.15s ease-out' }}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setDeleteConfirm(null)} />
-          <div className="relative z-10 bg-white rounded-2xl p-6 shadow-2xl max-w-sm w-full ring-1 ring-black/5" style={{ animation: 'scale-in 0.15s ease-out' }}>
-            <h3 className="text-base font-semibold text-slate-800 mb-2">Delete task?</h3>
+          <div className="relative z-10 rounded-2xl p-6 shadow-2xl shadow-black/60 max-w-sm w-full border border-white/10" style={{ background: 'rgba(10,13,30,0.98)', backdropFilter: 'blur(24px)', animation: 'scale-in 0.15s ease-out' }}>
+            <h3 className="text-base font-semibold text-slate-100 mb-2">Delete task?</h3>
             <p className="text-sm text-slate-500 mb-5">This action cannot be undone.</p>
             <div className="flex gap-3 justify-end">
-              <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
+              <button onClick={() => setDeleteConfirm(null)} className="px-4 py-2 text-sm font-medium text-slate-300 bg-white/5 hover:bg-white/10 ring-1 ring-white/10 rounded-xl transition-colors">
                 Cancel
               </button>
-              <button onClick={confirmDelete} className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors shadow-sm shadow-red-200">
+              <button onClick={confirmDelete} className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 rounded-xl transition-all shadow-lg shadow-rose-500/20">
                 Delete
               </button>
             </div>

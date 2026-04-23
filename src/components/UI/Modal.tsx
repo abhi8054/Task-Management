@@ -12,7 +12,6 @@ interface ModalProps {
 export function Modal({ open, title, onClose, children, maxWidth = 'max-w-xl' }: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
 
-  // Trap focus & close on Escape
   useEffect(() => {
     if (!open) return;
     const prev = document.activeElement as HTMLElement | null;
@@ -36,28 +35,28 @@ export function Modal({ open, title, onClose, children, maxWidth = 'max-w-xl' }:
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-md"
         onClick={onClose}
         aria-hidden
       />
 
       {/* Panel */}
       <div
-        className={`relative z-10 w-full ${maxWidth} bg-white rounded-2xl shadow-2xl ring-1 ring-black/5 flex flex-col max-h-[90vh]`}
-        style={{ animation: 'slide-up 0.2s ease-out' }}
+        className={`relative z-10 w-full ${maxWidth} rounded-2xl shadow-2xl shadow-black/60 flex flex-col max-h-[90vh] border border-white/10`}
+        style={{ background: 'rgba(10,13,30,0.95)', backdropFilter: 'blur(24px)', animation: 'slide-up 0.2s ease-out' }}
         role="dialog"
         aria-modal
         aria-label={title}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <h2 className="text-lg font-semibold text-slate-800">{title}</h2>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.08]">
+          <h2 className="text-base font-semibold text-slate-100">{title}</h2>
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+            className="rounded-lg p-1.5 text-slate-500 hover:text-slate-200 hover:bg-white/10 transition-colors"
             aria-label="Close"
           >
-            <X size={18} />
+            <X size={17} />
           </button>
         </div>
 

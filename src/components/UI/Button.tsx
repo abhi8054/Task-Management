@@ -10,10 +10,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const VARIANT_CLASSES: Record<Variant, string> = {
-  primary:   'bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 shadow-sm shadow-indigo-200',
-  secondary: 'bg-white text-slate-700 hover:bg-slate-50 active:bg-slate-100 ring-1 ring-slate-200 shadow-sm',
-  danger:    'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-sm shadow-red-200',
-  ghost:     'text-slate-600 hover:bg-slate-100 active:bg-slate-200',
+  primary:   'bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg shadow-violet-500/20 ring-1 ring-white/10',
+  secondary: 'bg-white/5 text-slate-300 hover:bg-white/10 hover:text-slate-100 ring-1 ring-white/10',
+  danger:    'bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white shadow-lg shadow-rose-500/20 ring-1 ring-white/10',
+  ghost:     'text-slate-400 hover:bg-white/5 hover:text-slate-200',
 };
 
 const SIZE_CLASSES: Record<Size, string> = {
@@ -26,7 +26,7 @@ export const Button = memo(({ variant = 'secondary', size = 'md', loading, child
   <button
     {...rest}
     disabled={disabled || loading}
-    className={`inline-flex items-center justify-center font-medium transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`}
+    className={`inline-flex items-center justify-center font-medium transition-all duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-500 disabled:opacity-40 disabled:cursor-not-allowed ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`}
   >
     {loading && (
       <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />

@@ -25,7 +25,6 @@ const FilterBar = memo(() => {
   const [searchInput, setSearchInput] = useState(filters.search);
   const debouncedSearch = useDebounce(searchInput, 300);
 
-  // Sync debounced search to context
   React.useEffect(() => {
     setFilter({ search: debouncedSearch });
   }, [debouncedSearch, setFilter]);
@@ -43,33 +42,33 @@ const FilterBar = memo(() => {
   const hiddenCount = tasks.length - filteredTasks.length;
 
   return (
-    <div className="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-30">
+    <div className="border-b border-white/[0.06] sticky top-0 z-30" style={{ background: 'rgba(8,12,24,0.85)', backdropFilter: 'blur(20px)' }}>
       <div className="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
 
           {/* Search */}
           <div className="relative flex-1 min-w-0">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search tasks by title…"
+              placeholder="Search tasks…"
               value={searchInput}
               onChange={handleSearch}
-              className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-400 transition-all placeholder:text-slate-400"
+              className="w-full pl-9 pr-4 py-2 text-sm bg-white/5 border border-white/10 rounded-xl text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500/40 focus:bg-white/8 transition-all"
             />
             {searchInput && (
               <button
                 onClick={() => { setSearchInput(''); setFilter({ search: '' }); }}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
               >
                 <X size={14} />
               </button>
             )}
           </div>
 
-          {/* Filters row */}
+          {/* Filters */}
           <div className="flex items-center gap-2 shrink-0 flex-wrap">
-            <SlidersHorizontal size={15} className="text-slate-400 shrink-0" />
+            <SlidersHorizontal size={14} className="text-slate-500 shrink-0" />
 
             <Select
               value={filters.priority}
@@ -86,15 +85,14 @@ const FilterBar = memo(() => {
             />
 
             {isFiltered && (
-              <Button variant="ghost" size="sm" onClick={handleClear} className="text-red-500 hover:bg-red-50 hover:text-red-600">
+              <Button variant="ghost" size="sm" onClick={handleClear} className="text-rose-400 hover:text-rose-300 hover:bg-rose-500/10">
                 <X size={13} /> Clear
               </Button>
             )}
           </div>
 
-          {/* Result count */}
           {isFiltered && (
-            <p className="text-xs text-slate-500 shrink-0">
+            <p className="text-xs text-slate-500 shrink-0 font-medium">
               {filteredTasks.length} shown{hiddenCount > 0 && `, ${hiddenCount} hidden`}
             </p>
           )}

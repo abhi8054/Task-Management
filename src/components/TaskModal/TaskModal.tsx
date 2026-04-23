@@ -60,16 +60,16 @@ export function TaskModal({ open, task, defaultStatus = 'todo', onClose, onSave 
 
   const field = (label: string, required: boolean, children: React.ReactNode, error?: string) => (
     <div className="flex flex-col gap-1.5">
-      <label className="text-sm font-medium text-slate-700">
-        {label}{required && <span className="text-red-500 ml-0.5">*</span>}
+      <label className="text-sm font-medium text-slate-400">
+        {label}{required && <span className="text-rose-500 ml-0.5">*</span>}
       </label>
       {children}
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p className="text-xs text-rose-400">{error}</p>}
     </div>
   );
 
   const inputCls = (err?: string) =>
-    `w-full px-3 py-2 text-sm border rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:bg-white transition-all ${err ? 'border-red-400 focus:ring-red-300/40' : 'border-slate-200 focus:ring-indigo-500/40 focus:border-indigo-400'}`;
+    `w-full px-3 py-2 text-sm border rounded-xl bg-white/5 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-2 transition-all ${err ? 'border-rose-500/40 focus:ring-rose-500/20' : 'border-white/10 focus:ring-violet-500/30 focus:border-violet-500/40'}`;
 
   return (
     <Modal open={open} title={task ? 'Edit Task' : 'Create New Task'} onClose={onClose}>
@@ -131,7 +131,7 @@ export function TaskModal({ open, task, defaultStatus = 'todo', onClose, onSave 
           />
         )}
 
-        <div className="flex justify-end gap-3 pt-2 border-t border-slate-100">
+        <div className="flex justify-end gap-3 pt-2 border-t border-white/[0.08]">
           <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
           <Button type="submit" variant="primary">{task ? 'Save Changes' : 'Create Task'}</Button>
         </div>

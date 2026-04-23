@@ -33,14 +33,14 @@ const TaskCard = memo(({ task, onEdit, onDelete, overlay = false }: Props) => {
       ref={setNodeRef}
       style={style}
       className={[
-        'group bg-white rounded-xl border transition-all duration-200 select-none',
+        'group rounded-xl border transition-all duration-200 select-none',
         isDragging || overlay
-          ? 'opacity-50 shadow-2xl scale-[1.02] rotate-1 border-indigo-300 ring-2 ring-indigo-400/30 z-50'
-          : 'border-slate-200 hover:border-slate-300 hover:shadow-md shadow-sm',
+          ? 'opacity-40 shadow-2xl scale-[1.02] rotate-1 border-violet-500/40 ring-1 ring-violet-500/20'
+          : 'bg-white/[0.04] border-white/[0.08] hover:border-white/[0.16] hover:bg-white/[0.07] shadow-sm hover:shadow-xl hover:shadow-black/20',
       ].join(' ')}
     >
       {/* Priority accent bar */}
-      <div className={`h-1 rounded-t-xl ${priority.dot}`} />
+      <div className={`h-0.5 rounded-t-xl ${priority.dot}`} />
 
       <div className="p-4">
         {/* Title row */}
@@ -48,14 +48,14 @@ const TaskCard = memo(({ task, onEdit, onDelete, overlay = false }: Props) => {
           <button
             {...attributes}
             {...listeners}
-            className="mt-0.5 text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing shrink-0 touch-none transition-colors"
+            className="mt-0.5 text-white/20 hover:text-white/50 cursor-grab active:cursor-grabbing shrink-0 touch-none transition-colors"
             aria-label="Drag to reorder"
           >
-            <GripVertical size={15} />
+            <GripVertical size={14} />
           </button>
 
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-semibold text-slate-800 leading-snug line-clamp-2 break-words">
+            <h3 className="text-sm font-semibold text-slate-100 leading-snug line-clamp-2 break-words">
               {task.title}
             </h3>
             {task.description && (
@@ -65,21 +65,21 @@ const TaskCard = memo(({ task, onEdit, onDelete, overlay = false }: Props) => {
             )}
           </div>
 
-          {/* Action buttons (appear on hover) */}
-          <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+          {/* Action buttons */}
+          <div className="flex gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
               onClick={handleEdit}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-violet-400 hover:bg-violet-500/10 transition-colors"
               aria-label="Edit task"
             >
-              <Pencil size={13} />
+              <Pencil size={12} />
             </button>
             <button
               onClick={handleDelete}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
               aria-label="Delete task"
             >
-              <Trash2 size={13} />
+              <Trash2 size={12} />
             </button>
           </div>
         </div>
@@ -89,14 +89,14 @@ const TaskCard = memo(({ task, onEdit, onDelete, overlay = false }: Props) => {
           <PriorityBadge priority={task.priority} />
 
           {task.dueDate ? (
-            <span className={`flex items-center gap-1 text-xs font-medium ${overdue ? 'text-red-500' : dueSoon ? 'text-amber-500' : 'text-slate-400'}`}>
+            <span className={`flex items-center gap-1 text-xs font-medium ${overdue ? 'text-rose-400' : dueSoon ? 'text-amber-400' : 'text-slate-500'}`}>
               {overdue  && <AlertCircle size={11} />}
               {dueSoon && !overdue && <Clock size={11} />}
               {!overdue && !dueSoon && <Calendar size={11} />}
               {formatDate(task.dueDate)}
             </span>
           ) : (
-            <span className="text-xs text-slate-300">No due date</span>
+            <span className="text-xs text-white/15">No due date</span>
           )}
         </div>
       </div>

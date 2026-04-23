@@ -24,11 +24,11 @@
       "title": "erter",
       "description": "",
       "priority": "low",
-      "status": "in-progress",
+      "status": "todo",
       "dueDate": "2026-04-23",
       "id": "task_1776942782025_z8g528k",
       "createdAt": "2026-04-23T11:13:02.025Z",
-      "updatedAt": "2026-04-23T11:21:15.900Z"
+      "updatedAt": "2026-04-23T11:32:05.724Z"
     },
     {
       "title": "erter",
@@ -44,11 +44,11 @@
       "title": "jjjjjjjjjjjjjjjjjjj",
       "description": "",
       "priority": "low",
-      "status": "in-progress",
+      "status": "todo",
       "dueDate": "2026-04-23",
       "id": "task_1776942966435_lpdefju",
       "createdAt": "2026-04-23T11:16:06.435Z",
-      "updatedAt": "2026-04-23T11:20:53.501Z"
+      "updatedAt": "2026-04-23T11:32:10.395Z"
     }
   ]
 }
